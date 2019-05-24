@@ -33,72 +33,88 @@ namespace Server
             random = new Random();
             v = false;
             turno = random.Next(1, 2);
-            buffer = new byte[25];
+            buffer = new byte[100];
             buffer_string = null;
             server = new TcpListener(IPAddress.Loopback, 4444);
             stopWatch = new Stopwatch();
 
-            server.Start();
-            Console.WriteLine("Server started: " + server.LocalEndpoint);
-            
-            player1 = server.AcceptTcpClient();
-            stopWatch.Stop();
-            stream1 = player1.GetStream();
-            Console.WriteLine("player 1 Accettato dopo: " + stopWatch.Elapsed.TotalSeconds.ToString()+"s\nGiocherà come: "+turno);
-            stream1.Write(Encoding.ASCII.GetBytes(turno.ToString()), 0, Encoding.ASCII.GetBytes(turno.ToString()).Length);
-            stopWatch.Restart();
-
-            if (turno == 1)
-                turno = 2;
-            else
-                turno = 1;
-
-            player2 = server.AcceptTcpClient();
-            stopWatch.Stop();
-            stream2 = player2.GetStream();
-            Console.WriteLine("player 2 Accettato dopo: " + stopWatch.Elapsed.TotalSeconds.ToString() + "s\nGiocherà come: " + turno);
-            stream2.Write(Encoding.ASCII.GetBytes(turno.ToString()), 0, Encoding.ASCII.GetBytes(turno.ToString()).Length);
-            stopWatch.Restart();
-
-
-            while (true)
+            try
             {
-                switch (turno)
+                server.Start();
+                stopWatch.Start();
+                Console.WriteLine("Server started: " + server.LocalEndpoint);
+
+                player1 = server.AcceptTcpClient();
+                stopWatch.Stop();
+                stream1 = player1.GetStream();
+                Console.WriteLine("player 1 Accettato dopo: " + stopWatch.Elapsed.TotalSeconds.ToString() + "s\nGiocherà come: " + turno);
+                stream1.Write(Encoding.ASCII.GetBytes("1"), 0, Encoding.ASCII.GetBytes("1").Length);
+                stopWatch.Restart();
+
+                player2 = server.AcceptTcpClient();
+                stopWatch.Stop();
+                stream2 = player2.GetStream();
+                Console.WriteLine("player 2 Accettato dopo: " + stopWatch.Elapsed.TotalSeconds.ToString() + "s\nGiocherà come: " + turno);
+                stream2.Write(Encoding.ASCII.GetBytes("2"), 0, Encoding.ASCII.GetBytes("2").Length);
+                stopWatch.Restart();
+
+                stream1.Write(Encoding.ASCII.GetBytes("Start"), 0, Encoding.ASCII.GetBytes("Start").Length);
+                Console.WriteLine("Start");
+                while (true)
                 {
-                    case 1:
-
-                        stream1.Read(buffer, 0, buffer.Length);
-                        Console.WriteLine("Tempo di attesa player 1: " + stopWatch.Elapsed.TotalSeconds.ToString());
-                        stream2.Write(buffer, 0, buffer.Length);
-                        buffer_string = Encoding.ASCII.GetString(buffer);
-                        v =Convert.ToBoolean(buffer_string.Split()[1]);
-                        if (v)
-                        {
-                            turno = 5;
-                        }
-                        break;
-                    case 2:
-
-                        stream2.Read(buffer, 0, buffer.Length);
-                        Console.WriteLine("Tempo di attesa player 2: " + stopWatch.Elapsed.TotalSeconds.ToString());
-                        stream1.Write(buffer, 0, buffer.Length);
-                        buffer_string = Encoding.ASCII.GetString(buffer);
-                        v = Convert.ToBoolean(buffer_string.Split()[1]);
-                        if (v)
-                        {
-                            turno = 5;
-                        }
-                        break;
-                    case 5:
-                        stream1.Close();
-                        stream1.Close();
-                        player1.Close();
-                        player2.Close();
-                        server.Stop();
-                        Server.Program.Main();
-                        break;
+                    switch (turno)
+                    {
+                        case 1:
+                            stream1.Read(buffer, 0, buffer.Length);
+                            Console.WriteLine("Tempo di attesa player 1: " + stopWatch.Elapsed.TotalSeconds.ToString());
+                            stream2.Write(buffer, 0, buffer.Length);
+                            stream2.Write(buffer, 0, buffer.Length);
+                            buffer_string = Encoding.ASCII.GetString(buffer);
+                            v = Convert.ToBoolean(buffer_string.Split('|')[1]);
+                            Console.WriteLine(buffer_string);
+                            if (v)
+                            {
+                                turno = 5;
+                            }
+                            turno = 2;
+                            
+                            break;
+                        case 2:
+                            stream2.Read(buffer, 0, buffer.Length);
+                            Console.WriteLine("Tempo di attesa player 2: " + stopWatch.Elapsed.TotalSeconds.ToString());
+                            stream1.Write(buffer, 0, buffer.Length);
+                            stream1.Write(buffer, 0, buffer.Length);
+                            buffer_string = Encoding.ASCII.GetString(buffer);
+                            v = Convert.ToBoolean(buffer_string.Split('|')[1]);
+                            Console.WriteLine(buffer_string);
+                            if (v)
+                            {
+                                turno = 5;
+                            }
+                            turno = 1;
+                            break;
+                        case 5:
+                            stream1.Close();
+                            stream2.Close();
+                            player1.Close();
+                            player2.Close();
+                            server.Stop();
+                            Server.Program.Main();
+                            break;
+                    }
                 }
             }
+            catch
+            {
+                Console.WriteLine("Problemi nella generazione del server o connessione dei giocatori");
+                Console.WriteLine("Rilancio il server");
+                server.Stop();
+                Server.Program.Main();
+            }
+
+            Server.Program.Main();
+
+           
         }
 
 
