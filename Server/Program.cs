@@ -68,7 +68,6 @@ namespace Server
                             stream1.Read(buffer, 0, buffer.Length);
                             Console.WriteLine("Tempo di attesa player 1: " + stopWatch.Elapsed.TotalSeconds.ToString());
                             stream2.Write(buffer, 0, buffer.Length);
-                            stream2.Write(buffer, 0, buffer.Length);
                             buffer_string = Encoding.ASCII.GetString(buffer);
                             v = Convert.ToBoolean(buffer_string.Split('|')[1]);
                             Console.WriteLine(buffer_string);
@@ -82,7 +81,6 @@ namespace Server
                         case 2:
                             stream2.Read(buffer, 0, buffer.Length);
                             Console.WriteLine("Tempo di attesa player 2: " + stopWatch.Elapsed.TotalSeconds.ToString());
-                            stream1.Write(buffer, 0, buffer.Length);
                             stream1.Write(buffer, 0, buffer.Length);
                             buffer_string = Encoding.ASCII.GetString(buffer);
                             v = Convert.ToBoolean(buffer_string.Split('|')[1]);
