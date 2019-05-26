@@ -10,7 +10,6 @@ namespace Player
         public Form1()
         {
             InitializeComponent();
-            buffer = new byte[100];
             /*PictureBox a;
             for (int i = 0; i < Controls.Count; i++)
             {
@@ -27,8 +26,7 @@ namespace Player
         int fine = 0;
         int turn;
         bool turno = false;
-        bool v = false;
-        byte[] buffer;                  //Il meassaggio è costruito così:     NomePictureBox.name | Vittoria(true/false) 
+        bool v = false;            //Il meassaggio è costruito così:     NomePictureBox.name | Vittoria(true/false) 
         //1==true== giocatore giallo          2==false== giocatore rosso
         string buffer_string;
         TcpClient player;
@@ -37,50 +35,86 @@ namespace Player
         private void btnconnetti_Click(object sender, EventArgs e)
         {
             player = new TcpClient(txtConnetti.Text, 4444);
-            stream = player.GetStream();
-            stream.Read(buffer, 0, buffer.Length);
-            buffer_string = Encoding.ASCII.GetString(buffer);
+            // stream = player.GetStream();
+            //stream.Read(buffer, 0, buffer.Length);
+           // buffer_string = Encoding.ASCII.GetString(buffer);
 
             btnconnetti.Enabled = false;
             txtConnetti.Enabled = false;
-            Player1();
+           // Player1();
         }
-        private void Player1()
+       /* private void Player1()
         {
             turn =int.Parse(buffer_string);
             if(buffer_string.Substring(0,1) == "1")
             {
                 turno = true;
                 lblTurno.Text = "Turno dell'avversario";
-                stream.Read(buffer, 0, buffer.Length);
+                Receive();
             }
             else
             {
                 turno = false;
-                lblTurno.Text = "giocatore" + turno;
-                Receive();
+                lblTurno.Text = "Tuo turno";
             }
-        }
+        }*/
         private void Send(string pos)
         {
+            byte[] buffer = new byte[80];
+            stream = player.GetStream();
             buffer_string = pos + "|" + v.ToString();
-            buffer = Encoding.ASCII.GetBytes(buffer_string);
-            stream.Write(buffer, 0, buffer.Length);
-            lblTurno.Text = "Turno dell'avversario";
+            stream.Write(Encoding.ASCII.GetBytes(buffer_string), 0, buffer_string.Length);
+            /*if(turn == 1 && turno == true)
+            {
+                buffer_string = pos + "|" + v.ToString();
+                buffer = Encoding.ASCII.GetBytes(buffer_string);
+                stream.Write(buffer, 0, buffer.Length); 
+                stream.Read(buffer, 0, buffer.Length);
+                buffer_string = Encoding.ASCII.GetString(buffer);
+                if (buffer_string == "ok")
+                {
+
+                }
+                else if (buffer_string == "Resend")
+                {
+                    Send(pos);
+                }
+                lblTurno.Text = "Turno dell'avversario";
+            }
+            else if(turn ==2 && turno==false){
+                buffer_string = pos + "|" + v.ToString();
+                buffer = Encoding.ASCII.GetBytes(buffer_string);
+                stream.Write(buffer, 0, buffer.Length);
+                stream.Read(buffer, 0, buffer.Length);
+                buffer_string = Encoding.ASCII.GetString(buffer);
+                if (buffer_string== "ok")
+                {
+
+                }
+                else if (buffer_string == "Resend")
+                {
+                    Send(pos);
+                }
+                lblTurno.Text = "Turno dell'avversario";
+            }
+            stream.ReadAsync(buffer, 0, buffer.Length);
+            buffer_string = Encoding.ASCII.GetString(buffer);
+            if (buffer_string == " ")
+            {
+                buffer_string = pos + "|" + v.ToString();
+                buffer = Encoding.ASCII.GetBytes(buffer_string);    
+                stream.Write(buffer, 0, buffer.Length);
+            }*/
         }
         private void Receive()
         {
-            System.Threading.Thread.Sleep(1000);
-            stream.Read(buffer, 0, buffer.Length);
+
+
+           /* stream.Read(buffer, 0, buffer.Length);
             buffer_string = Encoding.ASCII.GetString(buffer);
-            if (buffer_string == "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")
-            {
-                stream.Read(buffer, 0, buffer.Length);
-                buffer_string = Encoding.ASCII.GetString(buffer);
-            }
             string picture = buffer_string.Split('|')[0];
             int index =-1;
-            Controls.IndexOfKey(picture);
+            index = Controls.IndexOfKey(picture);
             for (int i = 0; i < Controls.Count; i++)
             {
                 if(Controls[i] is PictureBox)
@@ -91,8 +125,15 @@ namespace Player
                         break;
                     }
                 }
-            }
+            }*/
+
             PictureBox a;
+            byte[] buffer = new byte[80];
+            stream = player.GetStream();
+            int numbyte = stream.Read(buffer, 0, buffer.Length);
+            string buffer_string = Encoding.ASCII.GetString(buffer, 0, numbyte);
+            string picture = buffer_string.Split('|')[0];
+            int index = Controls.IndexOfKey(picture);
             if (index != -1)
             {
                 a = (PictureBox)Controls[index];
@@ -100,7 +141,7 @@ namespace Player
                 {
                     v = true;
                 }
-
+                
                 if (turn != 1)
                 {
                     if ((a.Name.Substring(10) == 1.ToString())|| (a.Name.Substring(10) == 8.ToString()) || (a.Name.Substring(10) == 15.ToString())
@@ -298,7 +339,6 @@ namespace Player
                     pictureBox29.Image = Caselle.Images[2];
                     pictureBox29.Tag = "rosso";
                 }
-
                 turno = !turno;
             }
             else if (pictureBox22.Tag == null)

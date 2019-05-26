@@ -20,7 +20,7 @@ namespace Server
 
             byte[] buffer;                  //Il meassaggio è costruito così:      NomePictureBox.name | Vittoria(true/false)
             int turno;                      //1== giocatore giallo          2== giocatore rosso
-            string buffer_string;
+            
             bool v;
             TcpListener server;
             TcpClient player1;
@@ -34,7 +34,6 @@ namespace Server
             v = false;
             turno = random.Next(1, 2);
             buffer = new byte[100];
-            buffer_string = null;
             server = new TcpListener(IPAddress.Loopback, 4444);
             stopWatch = new Stopwatch();
 
@@ -57,19 +56,51 @@ namespace Server
                 Console.WriteLine("player 2 Accettato dopo: " + stopWatch.Elapsed.TotalSeconds.ToString() + "s\nGiocherà come: " + turno);
                 stream2.Write(Encoding.ASCII.GetBytes("2"), 0, Encoding.ASCII.GetBytes("2").Length);
                 stopWatch.Restart();
-
-                stream1.Write(Encoding.ASCII.GetBytes("Start"), 0, Encoding.ASCII.GetBytes("Start").Length);
+                
                 Console.WriteLine("Start");
                 while (true)
                 {
+                    /*stream1.ReadAsync(buffer, 0, buffer.Length);
+                    buffer_string =  Encoding.ASCII.GetString(buffer);
+                    if(buffer_string==" ")
+                    {   
+                        buffer_string = "resend";
+                        buffer = Encoding.ASCII.GetBytes(buffer_string);
+                        stream1.Write(buffer, 0, buffer.Length);
+                    }
+                    stream2.ReadAsync(buffer, 0, buffer.Length);
+                    buffer_string = Encoding.ASCII.GetString(buffer);
+                    if (buffer_string == " ")
+                    {
+                        buffer_string = "resend";
+                        buffer = Encoding.ASCII.GetBytes(buffer_string);
+                        stream2.Write(buffer, 0, buffer.Length);
+                    }*/
+                    string buffer_string;
                     switch (turno)
                     {
+                        
                         case 1:
                             stream1.Read(buffer, 0, buffer.Length);
-                            Console.WriteLine("Tempo di attesa player 1: " + stopWatch.Elapsed.TotalSeconds.ToString());
-                            stream2.Write(buffer, 0, buffer.Length);
-                            stream2.Write(buffer, 0, buffer.Length);
                             buffer_string = Encoding.ASCII.GetString(buffer);
+                            Console.WriteLine("Tempo di attesa player 1: " + stopWatch.Elapsed.TotalSeconds.ToString() + "\n" + buffer_string);
+                            /*if (Encoding.ASCII.GetString(buffer) == "/0/0")
+                            {
+                                buffer_string = "Resend";
+                                buffer = Encoding.ASCII.GetBytes(buffer_string);
+                                stream1.Write(buffer,0,buffer.Length);
+                                stream1.Read(buffer, 0, buffer.Length);
+                            }
+                            else
+                            {
+                                buffer_string = "ok";
+                                buffer = Encoding.ASCII.GetBytes(buffer_string);
+                                stream1.Write(buffer, 0, buffer.Length);
+                            }*/
+                            
+                            buffer = Encoding.ASCII.GetBytes(buffer_string);
+                            stream2.Write(buffer, 0, buffer.Length);
+                            
                             v = Convert.ToBoolean(buffer_string.Split('|')[1]);
                             Console.WriteLine(buffer_string);
                             if (v)
@@ -77,14 +108,14 @@ namespace Server
                                 turno = 5;
                             }
                             turno = 2;
-                            
                             break;
                         case 2:
                             stream2.Read(buffer, 0, buffer.Length);
-                            Console.WriteLine("Tempo di attesa player 2: " + stopWatch.Elapsed.TotalSeconds.ToString());
-                            stream1.Write(buffer, 0, buffer.Length);
-                            stream1.Write(buffer, 0, buffer.Length);
                             buffer_string = Encoding.ASCII.GetString(buffer);
+                            Console.WriteLine("Tempo di attesa player 2: " + stopWatch.Elapsed.TotalSeconds.ToString()+"\n"+buffer_string);
+                            buffer = Encoding.ASCII.GetBytes(buffer_string);
+                            stream1.Write(buffer, 0, buffer.Length);
+                            
                             v = Convert.ToBoolean(buffer_string.Split('|')[1]);
                             Console.WriteLine(buffer_string);
                             if (v)
@@ -117,6 +148,7 @@ namespace Server
            
         }
 
+        
 
     }
 }
