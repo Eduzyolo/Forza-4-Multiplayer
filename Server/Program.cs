@@ -47,35 +47,19 @@ namespace Server
                 stopWatch.Stop();
                 stream1 = player1.GetStream();
                 Console.WriteLine("player 1 Accettato dopo: " + stopWatch.Elapsed.TotalSeconds.ToString() + "s\nGiocherà come: " + turno);
-                stream1.Write(Encoding.ASCII.GetBytes("1"), 0, Encoding.ASCII.GetBytes("1").Length);
+                stream1.Write(Encoding.ASCII.GetBytes(bool.TrueString), 0, Encoding.ASCII.GetBytes(bool.TrueString).Length);
                 stopWatch.Restart();
 
                 player2 = server.AcceptTcpClient();
                 stopWatch.Stop();
                 stream2 = player2.GetStream();
                 Console.WriteLine("player 2 Accettato dopo: " + stopWatch.Elapsed.TotalSeconds.ToString() + "s\nGiocherà come: " + turno);
-                stream2.Write(Encoding.ASCII.GetBytes("2"), 0, Encoding.ASCII.GetBytes("2").Length);
+                stream2.Write(Encoding.ASCII.GetBytes(bool.FalseString), 0, Encoding.ASCII.GetBytes(bool.FalseString).Length);
                 stopWatch.Restart();
                 
                 Console.WriteLine("Start");
                 while (true)
                 {
-                    /*stream1.ReadAsync(buffer, 0, buffer.Length);
-                    buffer_string =  Encoding.ASCII.GetString(buffer);
-                    if(buffer_string==" ")
-                    {   
-                        buffer_string = "resend";
-                        buffer = Encoding.ASCII.GetBytes(buffer_string);
-                        stream1.Write(buffer, 0, buffer.Length);
-                    }
-                    stream2.ReadAsync(buffer, 0, buffer.Length);
-                    buffer_string = Encoding.ASCII.GetString(buffer);
-                    if (buffer_string == " ")
-                    {
-                        buffer_string = "resend";
-                        buffer = Encoding.ASCII.GetBytes(buffer_string);
-                        stream2.Write(buffer, 0, buffer.Length);
-                    }*/
                     string buffer_string;
                     switch (turno)
                     {
@@ -83,21 +67,7 @@ namespace Server
                         case 1:
                             stream1.Read(buffer, 0, buffer.Length);
                             buffer_string = Encoding.ASCII.GetString(buffer);
-                            Console.WriteLine("Tempo di attesa player 1: " + stopWatch.Elapsed.TotalSeconds.ToString() + "\n" + buffer_string);
-                            /*if (Encoding.ASCII.GetString(buffer) == "/0/0")
-                            {
-                                buffer_string = "Resend";
-                                buffer = Encoding.ASCII.GetBytes(buffer_string);
-                                stream1.Write(buffer,0,buffer.Length);
-                                stream1.Read(buffer, 0, buffer.Length);
-                            }
-                            else
-                            {
-                                buffer_string = "ok";
-                                buffer = Encoding.ASCII.GetBytes(buffer_string);
-                                stream1.Write(buffer, 0, buffer.Length);
-                            }*/
-                            
+                            Console.WriteLine("Tempo di attesa player 1: " + stopWatch.Elapsed.TotalSeconds.ToString() + "\t" + buffer_string);
                             buffer = Encoding.ASCII.GetBytes(buffer_string);
                             stream2.Write(buffer, 0, buffer.Length);
                             
@@ -112,7 +82,7 @@ namespace Server
                         case 2:
                             stream2.Read(buffer, 0, buffer.Length);
                             buffer_string = Encoding.ASCII.GetString(buffer);
-                            Console.WriteLine("Tempo di attesa player 2: " + stopWatch.Elapsed.TotalSeconds.ToString()+"\n"+buffer_string);
+                            Console.WriteLine("Tempo di attesa player 2: " + stopWatch.Elapsed.TotalSeconds.ToString()+"\t"+buffer_string);
                             buffer = Encoding.ASCII.GetBytes(buffer_string);
                             stream1.Write(buffer, 0, buffer.Length);
                             
